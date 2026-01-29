@@ -73,6 +73,10 @@ settings:
   enable-blocking: true
   enable-muting: true
   
+  # Safety
+  hazard-prevention: true  # Prevents TP into Lava, Fire, Void, or solid blocks
+  block-water-tp: true     # Prevents TP into deep water
+
   # Notifications
   notify-expiry: true
   enable-admin-spy: true
@@ -104,7 +108,7 @@ teams:
   
   # PvP Settings
   friendly-fire-toggle: true
-  default-friendly-fire: false
+  default-friendly-fire: false # Players in same team can't hurt each other
   
   # Chat Settings
   chat-format: "<dark_gray>[<aqua>TeamChat</aqua>] <white>{player}: <gray>{message}"
@@ -315,8 +319,7 @@ menu-item:
 # WORLDS
 # --------------------------------------------------------------------------------------------
 worlds:
-  blacklist:
-    - "world_the_end"
+  blacklist: []
   allow-cross-world: true
   back-cross-world: true
 
