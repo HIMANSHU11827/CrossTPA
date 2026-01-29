@@ -648,8 +648,8 @@ public class RequestManager implements Listener {
                     .content("§7Player §f" + s.getName() + "§7 "
                             + (h ? "wants you to teleport to them." : "wants to teleport to you.") +
                             "\n\n§eDo you want to accept?")
-                    .button("§l§2ACCEPT", FormImage.Type.PATH, "textures/ui/confirm")
-                    .button("§l§cDENY", FormImage.Type.PATH, "textures/ui/cancel")
+                    .button("§l§2ACCEPT", FormImage.Type.PATH, "textures/ui/check")
+                    .button("§l§cDENY", FormImage.Type.PATH, "textures/ui/cross")
                     .validResultHandler((f, res) -> {
                         if (res.clickedButtonId() == 0)
                             r.performCommand("tpaccept");

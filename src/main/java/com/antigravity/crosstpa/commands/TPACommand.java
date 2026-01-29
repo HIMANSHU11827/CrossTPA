@@ -270,63 +270,78 @@ public class TPACommand implements CommandExecutor, TabCompleter {
 
             List<Runnable> actions = new ArrayList<>();
 
+            // 1. TPA Request (Standard)
             builder.button("§l§2» §rTeleport to Player\n§8Send a TPA request", FormImage.Type.PATH,
-                    "textures/ui/icon_multiplayer");
+                    "textures/items/ender_pearl");
             actions.add(() -> sendPlayerListForm(player, false));
 
+            // 2. TPA Here Request
             builder.button("§l§b» §rRequest Player to Me\n§8Send a TPAHere request", FormImage.Type.PATH,
-                    "textures/ui/FriendsIcon");
+                    "textures/items/compass_item");
             actions.add(() -> sendPlayerListForm(player, true));
 
-            builder.button("§l§e» §rTeleport Back\n§8Return to previous location", FormImage.Type.PATH,
-                    "textures/ui/undo");
-            actions.add(() -> player.performCommand("tpaback"));
+            // 3. My Homes (Moved UP for better access)
+            builder.button("§l§a» §rMy Homes\n§8Saved locations", FormImage.Type.PATH, "textures/items/bed_red");
+            actions.add(() -> sendHomesMenuForm(player));
 
-            if (player.hasPermission("crosstpa.admin.all")) {
-                builder.button("§l§d» §rTeleport All\n§8Admin Request", FormImage.Type.PATH,
-                        "textures/ui/icon_multiplayer");
-                actions.add(() -> player.performCommand("tpaall"));
-            }
-
+            // 4. Accept Request
             builder.button("§l§a» §rAccept Request\n§8Confirm latest inbound", FormImage.Type.PATH,
-                    "textures/ui/confirm");
+                    "textures/ui/check");
             actions.add(() -> player.performCommand("tpaccept"));
 
-            builder.button("§l§c» §rDeny Request\n§8Reject latest inbound", FormImage.Type.PATH, "textures/ui/cancel");
+            // 5. Deny Request
+            builder.button("§l§c» §rDeny Request\n§8Reject latest inbound", FormImage.Type.PATH, "textures/ui/cross");
             actions.add(() -> player.performCommand("tpreject"));
 
+            // 6. My Team (Moved UP)
+            builder.button("§l§e» §rMy Team\n§8Team management", FormImage.Type.PATH, "textures/items/iron_helmet");
+            actions.add(() -> sendTeamMenuForm(player));
+
+            // 7. Team Bank
+            builder.button("§l§3» §rTeam Bank\n§8Shared vault", FormImage.Type.PATH,
+                    "textures/items/chest_minecart");
+            actions.add(() -> sendTeamBankForm(player));
+
+            // 8. Personal Bank
+            builder.button("§l§6» §rPersonal Bank\n§8Manage your coins", FormImage.Type.PATH,
+                    "textures/items/gold_nugget");
+            actions.add(() -> sendPersonalBankForm(player));
+
+            // 9. Teleport Back
+            builder.button("§l§e» §rTeleport Back\n§8Return to previous location", FormImage.Type.PATH,
+                    "textures/items/chorus_fruit");
+            actions.add(() -> player.performCommand("tpaback"));
+
+            // 10. My Inbox
+            builder.button("§l§f» §rMy Inbox\n§8View active requests", FormImage.Type.PATH,
+                    "textures/items/book_writable");
+            actions.add(() -> player.performCommand("tpainfo"));
+
+            // 11. My Friends
+            builder.button("§l§d» §rMy Friends\n§8Social connections", FormImage.Type.PATH,
+                    "textures/items/cake");
+            actions.add(() -> sendFriendsMenuForm(player));
+
+            // 12. Security Settings
+            builder.button("§l§6» §rSecurity Settings\n§8Blocks & Privacy", FormImage.Type.PATH,
+                    "textures/items/barrier");
+            actions.add(() -> sendSecurityMenuForm(player));
+
+            // 13. Cancel Request
             builder.button("§l§4» §rCancel Request\n§8Abort latest outbound", FormImage.Type.PATH,
                     "textures/ui/cancel");
             actions.add(() -> player.performCommand("tpcancel"));
 
-            builder.button("§l§f» §rMy Inbox\n§8View active requests", FormImage.Type.PATH,
-                    "textures/ui/book_edit_glyph");
-            actions.add(() -> player.performCommand("tpainfo"));
-
-            builder.button("§l§6» §rPersonal Bank\n§8Manage your coins", FormImage.Type.PATH,
-                    "textures/ui/icon_recipe_item");
-            actions.add(() -> sendPersonalBankForm(player));
-
-            builder.button("§l§d» §rMy Friends\n§8Social connections", FormImage.Type.PATH,
-                    "textures/ui/multiplayer_glyph_color");
-            actions.add(() -> sendFriendsMenuForm(player));
-
-            builder.button("§l§a» §rMy Homes\n§8Saved locations", FormImage.Type.PATH, "textures/ui/beds");
-            actions.add(() -> sendHomesMenuForm(player));
-
-            builder.button("§l§e» §rMy Team\n§8Team management", FormImage.Type.PATH, "textures/ui/icon_multiplayer");
-            actions.add(() -> sendTeamMenuForm(player));
-
-            builder.button("§l§3» §rTeam Bank\n§8Shared vault", FormImage.Type.PATH,
-                    "textures/ui/icon_chest");
-            actions.add(() -> sendTeamBankForm(player));
-
-            builder.button("§l§6» §rSecurity Settings\n§8Blocks & Privacy", FormImage.Type.PATH,
-                    "textures/ui/permissions_op_settings");
-            actions.add(() -> sendSecurityMenuForm(player));
-
-            builder.button("§l§7» §rView Cooldown\n§8Check wait time", FormImage.Type.PATH, "textures/ui/watch_7");
+            // 14. View Cooldown
+            builder.button("§l§7» §rView Cooldown\n§8Check wait time", FormImage.Type.PATH,
+                    "textures/items/clock_item");
             actions.add(() -> player.performCommand("tpacooldown"));
+
+            if (player.hasPermission("crosstpa.admin.all")) {
+                builder.button("§l§d» §rTeleport All\n§8Admin Request", FormImage.Type.PATH,
+                        "textures/items/nether_star");
+                actions.add(() -> player.performCommand("tpaall"));
+            }
 
             if (player.hasPermission("crosstpa.admin.reload")) {
                 builder.button("§l§4» §rReload Plugin\n§8Refresh systems", FormImage.Type.PATH,
@@ -366,7 +381,7 @@ public class TPACommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        builder.button("§c« Back to Menu", FormImage.Type.PATH, "textures/ui/realign_left");
+        builder.button("§c« Back to Menu", FormImage.Type.PATH, "textures/ui/arrow_left");
 
         builder.validResultHandler((form, result) -> {
             int idx = result.clickedButtonId();
@@ -386,11 +401,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
                 .title("§l§6Security & Privacy")
                 .content("§7Manage who can interact with you:")
                 .button("§l§e» §rToggle TPA Status\n§8Enable/Disable receiving", FormImage.Type.PATH,
-                        "textures/ui/automation_glyph_eye")
+                        "textures/items/ender_eye")
                 .button("§l§c» §rBlock System\n§8Prevent player requests", FormImage.Type.PATH,
-                        "textures/ui/no_multiplayer_glyph_color")
-                .button("§l§8» §rMute System\n§8Hide player requests", FormImage.Type.PATH, "textures/ui/mute_off")
-                .button("§l§4« §rMain Menu\n§8Go back", FormImage.Type.PATH, "textures/ui/realign_left")
+                        "textures/ui/lock")
+                .button("§l§8» §rMute System\n§8Hide player requests", FormImage.Type.PATH, "textures/items/paper")
+                .button("§l§4« §rMain Menu\n§8Go back", FormImage.Type.PATH, "textures/ui/arrow_left")
                 .validResultHandler((form, result) -> {
                     int idx = result.clickedButtonId();
                     switch (idx) {
@@ -435,11 +450,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
             builder.content("§cNo other players available.");
         } else {
             for (Player p : players) {
-                builder.button("§f" + p.getName(), FormImage.Type.PATH, "textures/ui/friend_glyph_deselected");
+                builder.button("§f" + p.getName(), FormImage.Type.PATH, "textures/ui/icon_steve");
             }
         }
 
-        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/realign_left");
+        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/arrow_left");
 
         builder.validResultHandler((form, result) -> {
             int idx = result.clickedButtonId();
@@ -471,11 +486,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
                 String name = op.getName();
                 if (name == null)
                     name = "Unknown (" + uuid.toString().substring(0, 5) + ")";
-                builder.button("§f" + name, FormImage.Type.PATH, "textures/ui/FriendIcon");
+                builder.button("§f" + name, FormImage.Type.PATH, "textures/ui/icon_steve");
             }
         }
 
-        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/realign_left");
+        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/arrow_left");
 
         builder.validResultHandler((form, result) -> {
             int idx = result.clickedButtonId();
@@ -519,11 +534,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
         SimpleForm.Builder builder = SimpleForm.builder()
                 .title("§l§dMy Friends")
                 .content("§7Manage your social circle:")
-                .button("§l§a» §rView Friends\n§8List all friends", FormImage.Type.PATH, "textures/ui/FriendsIcon")
+                .button("§l§a» §rView Friends\n§8List all friends", FormImage.Type.PATH, "textures/ui/icon_steve")
                 .button("§l§e» §rPending Requests\n§8Check invitations", FormImage.Type.PATH,
-                        "textures/ui/book_edit_glyph")
+                        "textures/items/book_writable")
                 .button("§l§b» §rAdd Friend\n§8Invite a player", FormImage.Type.PATH, "textures/ui/plus")
-                .button("§l§4« §rMain Menu\n§8Go back", FormImage.Type.PATH, "textures/ui/realign_left");
+                .button("§l§4« §rMain Menu\n§8Go back", FormImage.Type.PATH, "textures/ui/arrow_left");
 
         builder.validResultHandler((form, result) -> {
             int idx = result.clickedButtonId();
@@ -546,10 +561,10 @@ public class TPACommand implements CommandExecutor, TabCompleter {
 
         List<String> homeNames = new ArrayList<>(homes.keySet());
         for (String name : homeNames) {
-            builder.button("§l§2" + name + "\n§8Saved Location", FormImage.Type.PATH, "textures/ui/beds");
+            builder.button("§l§2" + name + "\n§8Saved Location", FormImage.Type.PATH, "textures/items/bed_red");
         }
 
-        builder.button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/realign_left");
+        builder.button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/arrow_left");
 
         builder.validResultHandler((form, result) -> {
             int idx = result.clickedButtonId();
@@ -570,7 +585,7 @@ public class TPACommand implements CommandExecutor, TabCompleter {
         if (teamName == null) {
             builder.content("§7You are not in a team.")
                     .button("§l§a» §rCreate Team\n§8Start a new squad", FormImage.Type.PATH, "textures/ui/plus")
-                    .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/realign_left")
+                    .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/arrow_left")
                     .validResultHandler((form, result) -> {
                         int idx = result.clickedButtonId();
                         if (idx == 0) {
@@ -582,14 +597,16 @@ public class TPACommand implements CommandExecutor, TabCompleter {
         } else {
             DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
             builder.content("§7Team: §f" + teamName + "\n§7Color: §f" + data.color)
-                    .button("§l§e» §rTeam Info\n§8Stats & Members", FormImage.Type.PATH, "textures/ui/FriendsIcon")
+                    .button("§l§e» §rTeam Info\n§8Stats & Members", FormImage.Type.PATH, "textures/items/paper")
                     .button("§l§b» §rInvite Player\n§8Add to team", FormImage.Type.PATH, "textures/ui/plus")
-                    .button("§l§c» §rManage Members\n§8Kick/Promote/Demote", FormImage.Type.PATH, "textures/ui/op")
+                    .button("§l§c» §rManage Members\n§8Kick/Promote/Demote", FormImage.Type.PATH,
+                            "textures/items/iron_sword")
                     .button("§l§d» §rManage Allies\n§8Add/View Allies", FormImage.Type.PATH,
-                            "textures/ui/multiplayer_glyph_color")
-                    .button("§l§6» §rChange Color\n§8Set team style", FormImage.Type.PATH, "textures/ui/color_picker")
+                            "textures/items/flower_pot_item")
+                    .button("§l§6» §rChange Color\n§8Set team style", FormImage.Type.PATH,
+                            "textures/items/dye_powder_cyan")
                     .button("§l§c» §rLeave Team\n§8Quit squad", FormImage.Type.PATH, "textures/ui/cancel")
-                    .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/realign_left")
+                    .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/arrow_left")
                     .validResultHandler((form, result) -> {
                         int idx = result.clickedButtonId();
                         switch (idx) {
@@ -622,10 +639,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
                 .content("§7Your Balance: §f" + balance
                         + " Coins\n\n§7This is your personal currency,\n§7separate from team funds.")
                 .button("§l§a» §rView Transactions\n§8Recent history", FormImage.Type.PATH,
-                        "textures/ui/book_writable_default")
-                .button("§l§b» §rTransfer to Player\n§8Send coins", FormImage.Type.PATH, "textures/ui/icon_deals")
-                .button("§l§e» §rDeposit to Team\n§8Add to team vault", FormImage.Type.PATH, "textures/ui/icon_chest")
-                .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/realign_left")
+                        "textures/items/book_writable")
+                .button("§l§b» §rTransfer to Player\n§8Send coins", FormImage.Type.PATH, "textures/items/emerald")
+                .button("§l§e» §rDeposit to Team\n§8Add to team vault", FormImage.Type.PATH,
+                        "textures/items/chest_minecart")
+                .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/arrow_left")
                 .validResultHandler((form, result) -> {
                     int idx = result.clickedButtonId();
                     switch (idx) {
@@ -655,11 +673,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
                 .title("§l§3Team Bank")
                 .content("§7Team: §f" + teamName + "\n§7Balance: §f" + balance
                         + " Coins\n\n§7Shared team vault for all members.")
-                .button("§l§a» §rDeposit Items\n§8Add shards/clusters", FormImage.Type.PATH, "textures/ui/icon_import")
-                .button("§l§c» §rWithdraw Coins\n§8Take from vault", FormImage.Type.PATH, "textures/ui/icon_export")
-                .button("§l§b» §rConvert Currency\n§8Shards ↔ Clusters", FormImage.Type.PATH, "textures/ui/trade_icon")
-                .button("§l§6» §rCollect Rewards\n§8Mission items", FormImage.Type.PATH, "textures/ui/gift_square")
-                .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/realign_left")
+                .button("§l§a» §rDeposit Items\n§8Add shards/clusters", FormImage.Type.PATH, "textures/ui/plus")
+                .button("§l§c» §rWithdraw Coins\n§8Take from vault", FormImage.Type.PATH, "textures/ui/minus")
+                .button("§l§b» §rConvert Currency\n§8Shards ↔ Clusters", FormImage.Type.PATH, "textures/items/emerald")
+                .button("§l§6» §rCollect Rewards\n§8Mission items", FormImage.Type.PATH, "textures/items/diamond")
+                .button("§l§4« §rBack\n§8Main Menu", FormImage.Type.PATH, "textures/ui/arrow_left")
                 .validResultHandler((form, result) -> {
                     int idx = result.clickedButtonId();
                     switch (idx) {
