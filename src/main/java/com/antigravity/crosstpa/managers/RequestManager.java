@@ -304,29 +304,33 @@ public class RequestManager implements Listener {
         }
     }
 
+    public boolean isLocationSafe(Location loc) {
+        if (!plugin.getConfig().getBoolean("settings.hazard-prevention", true))
+            return true;
+
+        Material block = loc.getBlock().getType();
+        Material headBlock = loc.clone().add(0, 1, 0).getBlock().getType();
+        Material footBlock = loc.getBlock().getType();
+
+        boolean isWater = block == Material.WATER;
+        boolean avoidWater = plugin.getConfig().getBoolean("settings.block-water-tp", true);
+
+        boolean dangerous = block == Material.LAVA || block == Material.VOID_AIR
+                || (block == Material.CAVE_AIR && loc.getY() < -60)
+                || block == Material.FIRE || block == Material.SOUL_FIRE
+                || footBlock.isSolid() || headBlock.isSolid()
+                || (avoidWater && isWater);
+
+        return !dangerous;
+    }
+
     private void finalTeleport(Player player, Player target) {
         String prefix = getPrefix();
 
-        if (plugin.getConfig().getBoolean("settings.hazard-prevention", true)) {
-            Location tLoc = target.getLocation();
-            Material block = tLoc.getBlock().getType();
-            Material headBlock = tLoc.clone().add(0, 1, 0).getBlock().getType();
-            Material footBlock = tLoc.getBlock().getType();
-
-            boolean isWater = block == Material.WATER;
-            boolean avoidWater = plugin.getConfig().getBoolean("settings.block-water-tp", true);
-
-            boolean dangerous = block == Material.LAVA || block == Material.VOID_AIR
-                    || (block == Material.CAVE_AIR && tLoc.getY() < -60)
-                    || block == Material.FIRE || block == Material.SOUL_FIRE
-                    || footBlock.isSolid() || headBlock.isSolid()
-                    || (avoidWater && isWater);
-
-            if (dangerous) {
-                player.sendMessage(plugin.getMiniMessage().deserialize(
-                        prefix + "<red>Target is in a dangerous location (Lava/Water/Void)! Teleport cancelled.</red>"));
-                return;
-            }
+        if (!isLocationSafe(target.getLocation())) {
+            player.sendMessage(plugin.getMiniMessage().deserialize(
+                    prefix + "<red>Target is in a dangerous location (Lava/Water/Void)! Teleport cancelled.</red>"));
+            return;
         }
 
         backLocations.put(player.getUniqueId(), player.getLocation().clone());
