@@ -193,11 +193,6 @@ public class TeamCommand implements CommandExecutor {
             case "home" -> {
                 Location home = plugin.getTeamManager().getTeamHome(player);
                 if (home != null) {
-                    if (!plugin.getRequestManager().isLocationSafe(home)) {
-                        player.sendMessage(plugin.getMiniMessage()
-                                .deserialize(prefix + "<red>Team home is currently in a dangerous location!</red>"));
-                        return true;
-                    }
                     player.teleport(home);
                     player.sendMessage(
                             plugin.getMiniMessage().deserialize(prefix + "<green>Teleported to team home!</green>"));
@@ -237,12 +232,6 @@ public class TeamCommand implements CommandExecutor {
                     // /team base (teleport)
                     Location home = plugin.getTeamManager().getTeamHome(player);
                     if (home != null) {
-                        if (!plugin.getRequestManager().isLocationSafe(home)) {
-                            player.sendMessage(plugin.getMiniMessage()
-                                    .deserialize(
-                                            prefix + "<red>Team base is currently in a dangerous location!</red>"));
-                            return true;
-                        }
                         player.teleport(home);
                         player.sendMessage(
                                 plugin.getMiniMessage()
