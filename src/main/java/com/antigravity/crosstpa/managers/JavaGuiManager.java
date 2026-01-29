@@ -205,8 +205,17 @@ public class JavaGuiManager implements Listener {
                             player.sendMessage("§aHome '" + input + "' set successfully!");
                             openHomesMenu(player);
                         } else {
+                    case "CREATE_HOME" -> {
+                        if (plugin.getHomeManager().setHome(player, input)) {
+                            player.sendMessage("§aHome '" + input + "' set successfully!");
+                            openHomesMenu(player);
+                        } else {
                             player.sendMessage("§cFailed to set home. Limit reached or name invalid.");
                         }
+                    }
+                    case "ADD_ALLY" -> {
+                         player.performCommand("team ally " + input);
+                         openAllianceManager(player);
                     }
                 }
             });
@@ -299,8 +308,8 @@ public class JavaGuiManager implements Listener {
             inv.setItem(12,
                     createItem(Material.OAK_FENCE, "§l§aTeam Base", "§7Teleport to HQ.", "§eRight-Click to Set Base"));
             inv.setItem(11, createItem(Material.PAPER, "§l§bInvite Player", "§7Invite new teammates."));
-            inv.setItem(12, createItem(Material.IRON_SWORD, "§l§cManage Members", "§7Kick, Promote, or Demote."));
-            inv.setItem(13, createItem(Material.TOTEM_OF_UNDYING, "§l§dManage Allies", "§7View and add allies."));
+            inv.setItem(21, createItem(Material.IRON_SWORD, "§l§cManage Members", "§7Kick, Promote, or Demote."));
+            inv.setItem(23, createItem(Material.TOTEM_OF_UNDYING, "§l§dManage Allies", "§7View and add allies."));
             inv.setItem(14, createItem(Material.CYAN_DYE, "§l§6Change Color", "§7Current: §f" + data.color,
                     "§7Click to select color."));
             inv.setItem(15, createItem(Material.OAK_SIGN, "§l§aTeam Chat", "§7Toggle team chat.", "§7Current: "
@@ -452,9 +461,14 @@ public class JavaGuiManager implements Listener {
     }
 
     public void openColorPicker(Player player) {
+        // ... (Existing) via replacement is unsafe if method is large, but snippet is
+        // small
         int size = 27;
         Inventory inv = Bukkit.createInventory(new TpaGuiHolder("TEAM_COLOR", size), size,
                 Component.text("§8» §6§lPick Team Color"));
+
+        // ... (Re-using existing logic logic but needed context for Insert)
+        // Correct approach: Add new methods after openColorPicker.
 
         String[] colors = { "White", "Orange", "Magenta", "Light_Blue", "Yellow", "Lime", "Pink", "Gray", "Light_Gray",
                 "Cyan", "Purple", "Blue", "Brown", "Green", "Red", "Black" };
@@ -470,6 +484,63 @@ public class JavaGuiManager implements Listener {
         }
 
         inv.setItem(22, createItem(Material.ARROW, "§7« Back to Team Menu"));
+        player.openInventory(inv);
+    }
+
+    public void openTeamMemberManager(Player player) {
+        String teamName = plugin.getTeamManager().getPlayerTeam(player.getUniqueId());
+        if (teamName == null)
+            return;
+        DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
+
+        int size = 54;
+        Inventory inv = Bukkit.createInventory(new TpaGuiHolder("TEAM_MEMBERS", size), size,
+                Component.text("§8» §c§lManage Members"));
+
+        ItemStack glass = createConfigItem("java.filler-item", "GRAY_STAINED_GLASS_PANE", " ");
+        for (int i = 0; i < size; i++)
+            inv.setItem(i, glass);
+
+        int slot = 0;
+        for (UUID uuid : data.members) {
+            if (slot >= 45)
+                break; // limit
+            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            String role = data.roles.getOrDefault(uuid, "MEMBER");
+            inv.setItem(slot++, createSkull(Bukkit.getOfflinePlayer(uuid), "§e" + name, "§7Role: " + role, " ",
+                    "§eLeft-Click to Promote", "§eRight-Click to Demote", "§cShift-Click to Kick"));
+        }
+
+        inv.setItem(49, createItem(Material.ARROW, "§7« Back to Team"));
+        player.openInventory(inv);
+    }
+
+    public void openAllianceManager(Player player) {
+        String teamName = plugin.getTeamManager().getPlayerTeam(player.getUniqueId());
+        if (teamName == null)
+            return;
+        DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
+
+        int size = 27;
+        Inventory inv = Bukkit.createInventory(new TpaGuiHolder("TEAM_ALLIES", size), size,
+                Component.text("§8» §d§lAlliance Manager"));
+
+        ItemStack glass = createConfigItem("java.filler-item", "GRAY_STAINED_GLASS_PANE", " ");
+        for (int i = 0; i < size; i++)
+            inv.setItem(i, glass);
+
+        inv.setItem(13, createItem(Material.EMERALD, "§l§aAdd Ally", "§7Click to send alliance request."));
+
+        int slot = 0;
+        for (String ally : data.allies) {
+            if (slot >= 9)
+                break; // 0-8 for allies? No, layout.
+            // Let's use 0-8 first row, 18-26 bottom?
+            // Simple layout:
+            inv.setItem(slot++, createItem(Material.PAPER, "§l§d" + ally, "§cClick to Break Alliance"));
+        }
+
+        inv.setItem(22, createItem(Material.ARROW, "§7« Back to Team"));
         player.openInventory(inv);
     }
 
@@ -678,10 +749,8 @@ public class JavaGuiManager implements Listener {
                         player.closeInventory();
                     }
                     case 11 -> openPlayerListForAction(player, "TeamInvite");
-                    case 21 -> { // Moved from 12 (Manage Members)
-                        player.closeInventory();
-                        player.sendMessage("§eUse §f/team kick/promote/demote <player> §eto manage members!");
-                    }
+                    case 21 -> openTeamMemberManager(player);
+                    case 23 -> openAllianceManager(player);
                     case 14 -> openColorPicker(player);
                     case 15 -> {
                         player.performCommand("team chat");
@@ -771,6 +840,42 @@ public class JavaGuiManager implements Listener {
                             .serialize(item.getItemMeta().displayName()).substring(4).toLowerCase();
                     player.performCommand("team color " + colorName);
                     openTeamMenu(player);
+                }
+            }
+            case "TEAM_MEMBERS" -> {
+                if (event.getRawSlot() == 49) {
+                    openTeamMenu(player);
+                    return;
+                }
+                if (item.getType() == Material.PLAYER_HEAD) {
+                    SkullMeta meta = (SkullMeta) item.getItemMeta();
+                    if (meta != null && meta.getOwningPlayer() != null) {
+                        String name = meta.getOwningPlayer().getName();
+                        if (event.isShiftClick()) {
+                            player.performCommand("team kick " + name);
+                        } else if (event.isRightClick()) {
+                            player.performCommand("team demote " + name);
+                        } else {
+                            player.performCommand("team promote " + name);
+                        }
+                        openTeamMemberManager(player); // Refresh
+                    }
+                }
+            }
+            case "TEAM_ALLIES" -> {
+                if (event.getRawSlot() == 22) {
+                    openTeamMenu(player);
+                    return;
+                }
+                if (event.getRawSlot() == 13) {
+                    startChatInput(player, "ADD_ALLY");
+                    return;
+                }
+                if (item.getType() == Material.PAPER) {
+                    String teamName = LegacyComponentSerializer.legacySection()
+                            .serialize(item.getItemMeta().displayName()).substring(4);
+                    player.performCommand("team ally " + teamName); // Break
+                    openAllianceManager(player);
                 }
             }
             case "ACTION_BLOCK", "ACTION_MUTE", "ACTION_FRIEND", "ACTION_TEAMINVITE", "ACTION_TEAMKICK",
