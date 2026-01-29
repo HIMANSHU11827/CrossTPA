@@ -237,9 +237,9 @@ public class BedrockMenuManager {
                 switch (result.clickedButtonId()) {
                     case 0 -> player.performCommand("team info");
                     case 1 -> openPlayerSelection(player, "team invite", "Invite to Team");
-                    case 2 -> player.sendMessage("§eUse §f/team kick/promote/demote <player> §eto manage members!");
-                    case 3 -> openTeamBaseMenu(player); // Updated
-                    case 4 -> player.performCommand("team ally");
+                    case 2 -> openTeamMemberManagement(player, teamName);
+                    case 3 -> openTeamBaseMenu(player);
+                    case 4 -> openAllianceMenu(player, teamName);
                     case 5 -> openTeamColorForm(player);
                     case 6 -> {
                         player.performCommand("team leave");
@@ -250,6 +250,102 @@ public class BedrockMenuManager {
             });
             sendForm(player, builder);
         }
+    }
+
+    // --- MEMBER MANAGEMENT ---
+    private void openTeamMemberManagement(Player player, String teamName) {
+        DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
+        SimpleForm.Builder builder = SimpleForm.builder()
+                .title("§l§cManage Members")
+                .content("§7Select a member to manage:");
+
+        List<UUID> members = new ArrayList<>(data.members);
+        List<String> memberNames = new ArrayList<>();
+
+        for (UUID uuid : members) {
+            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            String role = data.roles.getOrDefault(uuid, "MEMBER");
+            builder.button(name + "\n§8" + role, FormImage.Type.PATH, "textures/ui/icon_steve");
+            memberNames.add(name);
+        }
+
+        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/arrow_left");
+
+        builder.validResultHandler((form, result) -> {
+            int idx = result.clickedButtonId();
+            if (idx < members.size()) {
+                openMemberActionMenu(player, memberNames.get(idx));
+            } else {
+                openTeamMenu(player);
+            }
+        });
+        sendForm(player, builder);
+    }
+
+    private void openMemberActionMenu(Player player, String targetName) {
+        SimpleForm.Builder builder = SimpleForm.builder()
+                .title("§l§eManage: " + targetName)
+                .content("§7Choose an action for §f" + targetName);
+
+        builder.button("§l§aPromote\n§8Increase Rank", FormImage.Type.PATH, "textures/ui/up_arrow");
+        builder.button("§l§eDemote\n§8Decrease Rank", FormImage.Type.PATH, "textures/ui/down_arrow");
+        builder.button("§l§cKick\n§8Remove from Team", FormImage.Type.PATH, "textures/ui/cross");
+        builder.button("§l§4Back", FormImage.Type.PATH, "textures/ui/arrow_left");
+
+        builder.validResultHandler((form, result) -> {
+            switch (result.clickedButtonId()) {
+                case 0 -> player.performCommand("team promote " + targetName);
+                case 1 -> player.performCommand("team demote " + targetName);
+                case 2 -> player.performCommand("team kick " + targetName);
+                case 3 -> openTeamMemberManagement(player, plugin.getTeamManager().getPlayerTeam(player.getUniqueId()));
+            }
+        });
+        sendForm(player, builder);
+    }
+
+    // --- ALLIANCE MANAGEMENT ---
+    private void openAllianceMenu(Player player, String teamName) {
+        DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
+        SimpleForm.Builder builder = SimpleForm.builder()
+                .title("§l§dAlliance Manager")
+                .content("§7Manage your team alliances.");
+
+        builder.button("§l§aAdd Ally\n§8Send Request", FormImage.Type.PATH, "textures/ui/plus");
+
+        List<String> allies = new ArrayList<>(data.allies);
+        for (String ally : allies) {
+            builder.button("§l§cBreak: " + ally + "\n§8Click to End", FormImage.Type.PATH, "textures/ui/minus");
+        }
+
+        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/arrow_left");
+
+        builder.validResultHandler((form, result) -> {
+            int idx = result.clickedButtonId();
+            if (idx == 0) {
+                openAddAllyMenu(player);
+            } else if (idx <= allies.size()) {
+                String targetTeam = allies.get(idx - 1);
+                player.performCommand("team ally " + targetTeam); // Toggles/Breaks
+            } else {
+                openTeamMenu(player);
+            }
+        });
+        sendForm(player, builder);
+    }
+
+    private void openAddAllyMenu(Player player) {
+        CustomForm.Builder builder = CustomForm.builder()
+                .title("§l§dAdd Alliance")
+                .input("§7Enter Team Name to Ally:", "e.g. Spartans");
+
+        builder.validResultHandler((form, result) -> {
+            String target = result.next();
+            if (target != null) {
+                player.performCommand("team ally " + target);
+            }
+            openAllianceMenu(player, plugin.getTeamManager().getPlayerTeam(player.getUniqueId()));
+        });
+        sendForm(player, builder);
     }
 
     private void openTeamBaseMenu(Player player) { // New intermediate menu
@@ -321,11 +417,55 @@ public class BedrockMenuManager {
 
         builder.validResultHandler((form, result) -> {
             switch (result.clickedButtonId()) {
-                case 0 -> player.sendMessage("§eUse /friend list for now!");
+                case 0 -> openFriendListMenu(player);
                 case 1 -> openPlayerSelection(player, "friend add", "Add Friend");
-                case 2 -> openPlayerSelection(player, "friend remove", "Remove Friend"); // Simplification, ideally list
-                                                                                         // friends
+                case 2 -> openPlayerSelection(player, "friend remove", "Remove Friend");
                 case 3 -> openMainMenu(player);
+            }
+        });
+        sendForm(player, builder);
+    }
+
+    private void openFriendListMenu(Player player) {
+        Set<UUID> friends = plugin.getFriendManager().getFriends(player.getUniqueId());
+        SimpleForm.Builder builder = SimpleForm.builder()
+                .title("§l§dFriend List")
+                .content("§7You have §f" + friends.size() + " §7friends.");
+
+        List<String> names = new ArrayList<>();
+        for (UUID uuid : friends) {
+            String n = Bukkit.getOfflinePlayer(uuid).getName();
+            builder.button(n != null ? n : "Unknown", FormImage.Type.PATH, "textures/ui/icon_steve");
+            names.add(n);
+        }
+
+        builder.button("§c« Back", FormImage.Type.PATH, "textures/ui/arrow_left");
+
+        builder.validResultHandler((form, result) -> {
+            int idx = result.clickedButtonId();
+            if (idx < names.size()) {
+                openFriendActionMenu(player, names.get(idx));
+            } else {
+                openFriendsMenu(player);
+            }
+        });
+        sendForm(player, builder);
+    }
+
+    private void openFriendActionMenu(Player player, String name) {
+        SimpleForm.Builder builder = SimpleForm.builder()
+                .title("§l§dFriend: " + name)
+                .content("§7Select action:");
+
+        builder.button("§l§cRemove Friend\n§8Unfriend", FormImage.Type.PATH, "textures/ui/minus");
+        builder.button("§l§4Block Player\n§8Block TPA", FormImage.Type.PATH, "textures/ui/lock");
+        builder.button("§l§7Back", FormImage.Type.PATH, "textures/ui/arrow_left");
+
+        builder.validResultHandler((form, result) -> {
+            switch (result.clickedButtonId()) {
+                case 0 -> player.performCommand("friend remove " + name);
+                case 1 -> player.performCommand("tpablock " + name);
+                case 2 -> openFriendListMenu(player);
             }
         });
         sendForm(player, builder);
@@ -372,9 +512,22 @@ public class BedrockMenuManager {
         sendForm(player, builder);
     }
 
-    private void openDepositForm(Player player) { // Placeholder logic usually
-        // Actually CrossTPA usually relies on commands, so:
-        player.sendMessage("§eUse /team bank deposit while holding items!");
+    private void openDepositForm(Player player) {
+        // Bedrock form for depositing specific counts is tough without Custom Form
+        plugin.getCoinManager(); // Ensure loaded
+        CustomForm.Builder builder = CustomForm.builder()
+                .title("§l§eTeam Deposit")
+                .toggle("§fDeposit All Hand Items?", true)
+                .label("§7Or use /team deposit to deposit everything matching Shards/Clusters.");
+
+        builder.validResultHandler((form, result) -> {
+            boolean depAll = result.next();
+            if (depAll) {
+                player.performCommand("team deposit");
+            }
+            openTeamBankMenu(player); // Go back to bank
+        });
+        sendForm(player, builder);
     }
 
     public void openTeamBankMenu(Player player) {
@@ -392,7 +545,7 @@ public class BedrockMenuManager {
 
         builder.validResultHandler((form, result) -> {
             switch (result.clickedButtonId()) {
-                case 0 -> player.sendMessage("§eHold items and use /" + baseCmd + " deposit");
+                case 0 -> openDepositForm(player); // Now calls the form
                 case 1 -> openWithdrawForm(player, baseCmd);
                 case 2 -> openMainMenu(player);
             }
