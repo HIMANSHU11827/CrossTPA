@@ -74,8 +74,8 @@ settings:
   enable-muting: true
   
   # Safety
-  hazard-prevention: true  # Prevents TP into Lava, Fire, Void, or solid blocks
-  block-water-tp: true     # Prevents TP into deep water
+  hazard-prevention: false # Disabled by default for maximum freedom
+  block-water-tp: false    # Disabled by default
 
   # Notifications
   notify-expiry: true

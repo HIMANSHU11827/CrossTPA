@@ -10,7 +10,7 @@ CrossTPA is a high-performance, feature-rich Minecraft plugin designed specifica
 ### 🚀 Advanced Teleportation
 *   **Java & Bedrock Optimized**: Native command support for Java and interactive **GUI Forms** for Bedrock.
 *   **TPA / TPAHere / TPAAll**: Standard and mass teleportation requests.
-*   **Safety First**: Built-in hazard prevention. The plugin blocks teleports into Lava, Fire, Solid Blocks (Suffocation), or the Void.
+*   **Safety Guards (Optional)**: Optional hazard prevention can be enabled to block teleports into Lava, Fire, Solid Blocks, or the Void (Disabled by default for maximum freedom).
 *   **Movement Cancellation**: Optional setting to cancel teleport if the player moves.
 *   **Admin Spy**: Staff can monitor all TP requests in real-time.
 
