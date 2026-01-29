@@ -1,0 +1,352 @@
+# ============================================================================================
+#                                    C R O S S - T P A
+#                             The Ultimate Teleportation Suite
+# ============================================================================================
+
+# --------------------------------------------------------------------------------------------
+# [1] MASTER SWITCHES - Enable/Disable Features
+# --------------------------------------------------------------------------------------------
+features:
+  # Core Features
+  teams: true
+  team-base: true          # Allow teams to set/teleport to base (/team base, /tpateambase)
+  friends: true
+  homes: true
+  economy: true
+  chat-formatting: true
+  missions: true
+  
+  # Bank Features
+  personal-bank: true      # Personal coin storage and transfers
+  team-bank: true          # Team shared vault
+  
+  # GUI Features
+  item-menu: true          # Right-click item to open TPA menu
+  bedrock-forms: true      # Bedrock Edition form menus
+  java-gui: true           # Java Edition inventory GUIs
+  
+  # Social Features
+  blocking: true           # Allow players to block others
+  muting: true             # Allow players to mute others
+  admin-spy: true          # Admins see all TPA requests
+
+# --------------------------------------------------------------------------------------------
+# [2] ITEM MENU SETTINGS
+# --------------------------------------------------------------------------------------------
+item-menu:
+  # What item opens the menu when right-clicked?
+  item: "COMPASS"
+  
+  # Display name of the item (must match exactly)
+  name: "§3§lCrossTPA Menu"
+  
+  # Lore (description) of the item
+  lore:
+    - "§7Right-click to open"
+    - "§7the TPA control panel!"
+
+# --------------------------------------------------------------------------------------------
+# [3] SETTINGS (Core Behavior Controls)
+# --------------------------------------------------------------------------------------------
+settings:
+  # Prefix in messages?
+  prefix-enabled: true
+  
+  # Teleportation
+  teleport-delay: 3
+  teleport-cooldown: 10
+  request-expiry: 60
+  max-distance: 0
+  max-homes: 5
+  
+  # Cancellation
+  cancel-on-move: true
+  cancel-on-damage: true
+  cancel-on-teleport: false
+  
+  # UI
+  use-bossbar: true
+  use-actionbar: true
+  use-bedrock-forms: true
+  
+  # Social
+  enable-blocking: true
+  enable-muting: true
+  
+  # Notifications
+  notify-expiry: true
+  enable-admin-spy: true
+
+# --------------------------------------------------------------------------------------------
+# [3] TEAM SYSTEM - Detailed Feature Control
+# --------------------------------------------------------------------------------------------
+teams:
+  # Individual Team Feature Toggles
+  features:
+    team-creation: true        # Allow creating teams (/team create)
+    team-chat: true            # Enable team chat (/team chat)
+    team-coins: true           # Enable team coin system
+    team-home: true            # Allow setting team home (/team sethome)
+    team-allies: true          # Enable ally system (/team ally)
+    team-pvp-toggle: true      # Allow toggling friendly fire (/team pvp)
+    team-rename: true          # Allow renaming teams (/team rename)
+    team-transfer: true        # Allow transferring ownership (/team transfer)
+    team-roles: true           # Enable role system (promote/demote)
+    team-color: true           # Allow changing team color (/team color)
+    team-kick: true            # Allow kicking members (/team kick)
+    team-invite: true          # Allow inviting players (/team invite)
+    team-leave: true           # Allow leaving teams (/team leave)
+    team-disband: true         # Allow disbanding teams (/team disband)
+  
+  # Team Limits
+  max-members: 10
+  max-allies: 3
+  
+  # PvP Settings
+  friendly-fire-toggle: true
+  default-friendly-fire: false
+  
+  # Chat Settings
+  chat-format: "<dark_gray>[<aqua>TeamChat</aqua>] <white>{player}: <gray>{message}"
+  
+  # Costs (requires economy: true)
+  costs:
+    create-team: 1000.0
+    rename-team: 500.0
+    set-home: 100.0
+    set-base: 100.0
+  
+  # Bank System Permissions
+  bank:
+    # Can members transfer between Personal Bank <-> Team Bank?
+    allow-personal-to-team: true
+    allow-team-to-personal: true
+    
+    # Transfer limits per transaction
+    max-transfer-personal-to-team: 10000
+    max-transfer-team-to-personal: 5000
+    
+    # Transfer fees (percentage)
+    personal-to-team-fee: 0.0
+    team-to-personal-fee: 5.0
+    
+    # Who can access Team Bank? (by role)
+    access-permissions:
+      owner: true
+      admin: true
+      moderator: true
+      member: true
+      recruit: false
+    
+    # Who can withdraw from Team Bank? (by role)
+    withdraw-permissions:
+      owner: true
+      admin: true
+      moderator: true
+      member: false
+      recruit: false
+    
+    # Withdrawal limits per role (per transaction)
+    withdraw-limits:
+      owner: 999999
+      admin: 50000
+      moderator: 10000
+      member: 1000
+      recruit: 0
+
+# --------------------------------------------------------------------------------------------
+# [5] MISSION BOARD
+# --------------------------------------------------------------------------------------------
+missions:
+  max-active: 5
+  expiry-hours: 72
+  post-cost: 50.0
+  max-reward: 100000.0
+
+# --------------------------------------------------------------------------------------------
+# [5] GUI & MENUS
+# --------------------------------------------------------------------------------------------
+gui:
+  close-on-click: true
+  play-sounds: true
+  items:
+    background-glass: "BLACK_STAINED_GLASS_PANE"
+    accept-button: "EMERALD"
+    deny-button: "REDSTONE"
+    info-button: "BOOK"
+    bank:
+      deposit-item: "HOPPER"
+      withdraw-item: "GOLD_INGOT"
+      convert-item: "EXPERIENCE_BOTTLE"
+    mission:
+      kill-icon: "IRON_SWORD"
+      collect-icon: "CHEST"
+  bedrock:
+    use-textures: true
+    confirm-texture: "textures/ui/confirm"
+    cancel-texture: "textures/ui/cancel"
+    menu-texture: "textures/ui/icon_multiplayer"
+
+# --------------------------------------------------------------------------------------------
+# [6] VISUALS & SOUNDS
+# --------------------------------------------------------------------------------------------
+effects:
+  sounds-enabled: true
+  particles-enabled: true
+  sounds:
+    request-sent: "BLOCK_NOTE_BLOCK_PLING"
+    request-received: "BLOCK_NOTE_BLOCK_CHIME"
+    teleport-start: "ENTITY_ENDERMAN_TELEPORT"
+    teleport-success: "ENTITY_PLAYER_LEVELUP"
+    error: "BLOCK_NOTE_BLOCK_BASS"
+  particles:
+    teleporting: "PORTAL"
+    success: "TOTEM"
+  bossbar:
+    enabled: true
+    color: "BLUE"
+    style: "SOLID"
+    title: "<gradient:#4facfe:#00f2fe>Teleporting in {time} seconds...</gradient>"
+
+# --------------------------------------------------------------------------------------------
+# [7] MESSAGES (MiniMessage Format)
+# --------------------------------------------------------------------------------------------
+messages:
+  prefix: "<gradient:#4facfe:#00f2fe>[CrossTPA]</gradient> <reset>"
+  
+  # General
+  no-permission: "<red>You don't have permission for that!</red>"
+  command-disabled: "<red>This command is currently disabled.</red>"
+  player-only: "<red>Only players can use this command.</red>"
+  player-not-found: "<red>Target <yellow>{player}</yellow> is not online.</red>"
+  reload-success: "<green>Configuration reloaded successfully!</green>"
+  world-blacklisted: "<red>Teleportation is forbidden in this world.</red>"
+  too-far: "<red>Target is too far away! (Max: {distance} blocks)</red>"
+  cross-world-disabled: "<red>Cross-world teleportation is disabled.</red>"
+  insufficient-funds: "<red>You need <yellow>{cost}</yellow> coins!</red>"
+  
+  # TPA
+  tpa-sent: "<gray>Request sent to <white>{player}</white>.</gray>"
+  tpa-received: "<gray><yellow>{player}</yellow> wants to teleport to you.</gray>\n<click:run_command:'/tpaccept'><green>[ACCEPT]</green></click> <click:run_command:'/tpreject'><red>[REJECT]</red></click>"
+  tpahere-sent: "<gray>Requested <white>{player}</white> to come to you.</gray>"
+  tpahere-received: "<gray><yellow>{player}</yellow> wants you to teleport to them.</gray>\n<click:run_command:'/tpaccept'><green>[ACCEPT]</green></click> <click:run_command:'/tpreject'><red>[REJECT]</red></click>"
+  request-expired: "<gray>Teleport request to <white>{player}</white> has expired.</gray>"
+  
+  # Actions
+  tp-accepted: "<green>Request accepted!</green>"
+  tp-rejected: "<red>Request was denied.</red>"
+  tp-cancelled: "<yellow>Teleportation aborted.</yellow>"
+  tp-success: "<gradient:#4facfe:#00f2fe>Whoosh! Teleportation successful.</gradient>"
+  
+  # Status
+  tp-delay-chat: "<gray>Stay still! Moving in <yellow>{time}s</yellow>...</gray>"
+  tp-moved: "<red>Movement detected! Teleport cancelled.</red>"
+  tp-damaged: "<red>Engagement detected! Teleport cancelled.</red>"
+  tp-cooldown: "<red>Patience! Wait <yellow>{time}s</yellow> before another request.</red>"
+  
+  # Social
+  player-blocked: "<red>Blocked {player}.</red>"
+  player-unblocked: "<green>Unblocked {player}.</green>"
+  player-muted: "<gray>Muted {player}.</gray>"
+  player-unmuted: "<green>Unmuted {player}.</green>"
+  blocking-disabled: "<red>Blocking is disabled on this server.</red>"
+  muting-disabled: "<red>Muting is disabled on this server.</red>"
+  tpa-disabled: "<gray>TPA requests: <red>DISABLED</red></gray>"
+  tpa-enabled: "<gray>TPA requests: <green>ENABLED</green></gray>"
+  target-blocking: "<red>That player has blocked you.</red>"
+  target-disabled: "<red>That player is in 'Do Not Disturb' mode.</red>"
+  
+  # Admin & Info
+  admin-spy: "<dark_gray>[Spy]</dark_gray> <gray>{sender} -> {receiver} ({action})</gray>"
+  info-header: "<gradient:#4facfe:#00f2fe>--- Active Requests ---</gradient>"
+  info-entry: "<gray>From: <yellow>{player}</yellow> | Type: <aqua>{type}</aqua></gray>"
+  info-none: "<gray>Your inbox is empty.</gray>"
+  history-header: "<gradient:#4facfe:#00f2fe>--- Recent Teleports ---</gradient>"
+  history-entry: "<gray>{entry}</gray>"
+  
+  # Protection
+  protection-started: "<aqua>You are protected for {time} seconds.</aqua>"
+  protection-expired: "<gray>Protection expired.</gray>"
+  
+  # Back
+  back-empty: "<red>No previous location found.</red>"
+
+# --------------------------------------------------------------------------------------------
+# [8] COMMAND TOGGLES
+# --------------------------------------------------------------------------------------------
+commands:
+  tpa: true
+  tpahere: true
+  tpaccept: true
+  tpreject: true
+  tpdeny: true
+  tpcancel: true
+  tpaall: true
+  tpaback: true
+  tpatoggle: true
+  tpamute: true
+  tpaunmute: true
+  tpablock: true
+  tpaunblock: true
+  tpamenu: true
+  tpainfo: true
+  tpacooldown: true
+  tpahistory: true
+
+history:
+  save: true
+  log-format: "[{time}] [{action}] {sender} -> {receiver} | Loc: {loc}"
+
+# --------------------------------------------------------------------------------------------
+# MENU ITEM
+# --------------------------------------------------------------------------------------------
+menu-item:
+  enabled: false
+  material: "COMPASS"
+  display-name: "§b§lCrossTPA §fControl Panel"
+  lore:
+    - "§7Right-click to open"
+    - "§7the teleportation menu."
+  slot: 8
+  give-on-join: true
+  prevent-movement: true
+
+# --------------------------------------------------------------------------------------------
+# WORLDS
+# --------------------------------------------------------------------------------------------
+worlds:
+  blacklist:
+    - "world_the_end"
+  allow-cross-world: true
+  back-cross-world: true
+
+# --------------------------------------------------------------------------------------------
+# ECONOMY
+# --------------------------------------------------------------------------------------------
+economy:
+  enabled: false
+  tpa-cost: 0.0
+  tpahere-cost: 0.0
+  back-cost: 0.0
+  refund-on-deny: true
+
+# Logging (History)
+history:
+  save: true
+  log-format: "[{time}] [{action}] {sender} -> {receiver} | Loc: {loc}"
+
+# -------------------------------------------------------------------
+# MENU ITEM SETTINGS (Give players an item to open the menu)
+# -------------------------------------------------------------------
+menu-item:
+  enabled: false
+  material: "COMPASS"
+  display-name: "§b§lCrossTPA §fControl Panel"
+  lore:
+    - "§7Right-click to open"
+    - "§7the teleportation menu."
+  slot: 8
+  # Give item on join?
+  give-on-join: true
+  # Prevent moving/dropping the item?
+  prevent-movement: true

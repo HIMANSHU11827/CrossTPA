@@ -1,0 +1,105 @@
+name: CrossTPA
+version: 1.1-RELEASE
+main: com.antigravity.crosstpa.CrossTPA
+api-version: 1.20
+description: A high-performance, cross-platform TPA plugin with native Bedrock support.
+author: HACKER_118
+softdepend: [Vault, floodgate]
+commands:
+  tpa:
+    description: Send a teleport request to a player.
+    usage: /tpa <player>
+  tpahere:
+    description: Request a player to teleport to you.
+    usage: /tpahere <player>
+  tpaccept:
+    description: Accept a teleport request.
+    usage: /tpaccept
+  tpreject:
+    description: Reject a teleport request.
+    usage: /tpreject
+  tpdeny:
+    description: Alias for tpreject.
+    usage: /tpdeny
+  tpcancel:
+    description: Cancel your sent teleport request.
+    usage: /tpcancel
+  tpablock:
+    description: Block a player from sending you TPA requests.
+    usage: /tpablock <player>
+  tpaunblock:
+    description: Unblock a player.
+    usage: /tpaunblock <player>
+  tpatoggle:
+    description: Toggle receiving TPA requests.
+    usage: /tpatoggle
+  tpahistory:
+    description: View teleportation history (Admin).
+    usage: /tpahistory [player]
+    permission: crosstpa.admin.history
+  tpamenu:
+    description: Open the CrossTPA management menu.
+    usage: /tpamenu
+  tpaall:
+    description: Request all players to teleport to you.
+    usage: /tpaall
+    permission: crosstpa.admin.all
+  tpaback:
+    description: Teleport back to your last location.
+    usage: /tpaback
+    permission: crosstpa.back
+  tpacooldown:
+    description: Check your remaining TPA cooldown.
+    usage: /tpacooldown
+  tpainfo:
+    description: See information about your active TPA requests.
+    usage: /tpainfo
+  tpamute:
+    description: Silently ignore requests from a specific player.
+    usage: /tpamute <player>
+  tpaunmute:
+    description: Unmute a player.
+    usage: /tpaunmute <player>
+  crosstpa:
+    description: Main command for CrossTPA.
+    usage: /crosstpa reload
+  home:
+    description: Teleport to a saved home location.
+    usage: /home [name]
+  sethome:
+    description: Set a home location.
+    usage: /sethome [name]
+  delhome:
+    description: Delete a home location.
+    usage: /delhome <name>
+  friend:
+    description: Manage your friends list.
+    usage: /friend <add|remove|list> [player]
+  team:
+    description: Manage your team.
+    usage: /team <create|invite|accept|leave|...>
+  tpaitem:
+    description: Get the TPA menu item.
+    usage: /tpaitem
+  tpateambase:
+    description: Teleport to team base or set it (leaders/co-leaders only).
+    usage: /tpateambase [set]
+permissions:
+  crosstpa.use:
+    description: Allows use of basic TPA commands.
+    default: true
+  crosstpa.back:
+    description: Allows use of /tpaback command.
+    default: true
+  crosstpa.admin.history:
+    description: Allows viewing teleport history.
+    default: op
+  crosstpa.admin.reload:
+    description: Allows reloading the plugin.
+    default: op
+  crosstpa.admin.all:
+    description: Allows requesting everyone to teleport.
+    default: op
+  crosstpa.admin.spy:
+    description: Allows spying on TPA requests.
+    default: op
