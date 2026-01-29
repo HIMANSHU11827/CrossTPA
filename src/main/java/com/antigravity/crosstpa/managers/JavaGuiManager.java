@@ -200,6 +200,14 @@ public class JavaGuiManager implements Listener {
                     }
                     case "MISSION_REWARD" -> {
                     } // Placeholder for advanced mission creation later
+                    case "CREATE_HOME" -> {
+                        if (plugin.getHomeManager().setHome(player, input)) {
+                            player.sendMessage("§aHome '" + input + "' set successfully!");
+                            openHomesMenu(player);
+                        } else {
+                            player.sendMessage("§cFailed to set home. Limit reached or name invalid.");
+                        }
+                    }
                 }
             });
         }
@@ -251,14 +259,23 @@ public class JavaGuiManager implements Listener {
         for (int i = 0; i < size; i++)
             inv.setItem(i, glass);
 
+        if (homes.size() < plugin.getConfig().getInt("settings.max-homes", 3)) {
+            inv.setItem(20, createItem(Material.LIME_CONCRETE, "§l§aCreate New Home", "§7Click to set a home",
+                    "§7at your current location."));
+        }
+
+        inv.setItem(22, createItem(Material.ARROW, "§7« Back to Menu"));
+
+        if (!homes.isEmpty()) {
+            inv.setItem(24, createItem(Material.BARRIER, "§l§cDelete Home", "§7Click to remove a home."));
+        }
+
         int slot = 0;
         for (String name : homes.keySet()) {
             if (slot >= 18)
                 break;
             inv.setItem(slot++, createItem(Material.RED_BED, "§a§l" + name, "§7Click to teleport."));
         }
-
-        inv.setItem(22, createItem(Material.ARROW, "§7« Back to Menu"));
         player.openInventory(inv);
     }
 
@@ -277,6 +294,10 @@ public class JavaGuiManager implements Listener {
             DataManager.TeamData data = plugin.getTeamManager().getTeamData(teamName);
             inv.setItem(10,
                     createItem(Material.PLAYER_HEAD, "§l§eTeam Info", "§7Click to view stats", "§7and members list."));
+
+            // Re-order for nicer layout
+            inv.setItem(12,
+                    createItem(Material.OAK_FENCE, "§l§aTeam Base", "§7Teleport to HQ.", "§eRight-Click to Set Base"));
             inv.setItem(11, createItem(Material.PAPER, "§l§bInvite Player", "§7Invite new teammates."));
             inv.setItem(12, createItem(Material.IRON_SWORD, "§l§cManage Members", "§7Kick, Promote, or Demote."));
             inv.setItem(13, createItem(Material.TOTEM_OF_UNDYING, "§l§dManage Allies", "§7View and add allies."));
@@ -471,6 +492,21 @@ public class JavaGuiManager implements Listener {
     }
 
     public void openListRemovalMenu(Player player, String type) {
+        if ("Home".equals(type)) {
+            Map<String, Location> homes = plugin.getHomeManager().getHomes(player);
+            int size = 27;
+            Inventory inv = Bukkit.createInventory(new TpaGuiHolder("REMOVE_HOME", size), size,
+                    Component.text("§l§cDelete Home"));
+
+            int s = 0;
+            for (String h : homes.keySet()) {
+                inv.setItem(s++, createItem(Material.RED_BED, "§c§l" + h, "§7Click to DELETE."));
+            }
+            inv.setItem(22, createItem(Material.BARRIER, "§c« Back"));
+            player.openInventory(inv);
+            return;
+        }
+
         Set<UUID> list = type.equalsIgnoreCase("Block") ? plugin.getRequestManager().getBlockList(player.getUniqueId())
                 : plugin.getRequestManager().getMuteList(player.getUniqueId());
         List<UUID> uuids = new ArrayList<>(list);
@@ -487,6 +523,11 @@ public class JavaGuiManager implements Listener {
 
         inv.setItem(size - 1, createItem(Material.BARRIER, "§c« Back"));
         player.openInventory(inv);
+    }
+
+    // Adjusted to handle "Home" type
+    public void openListRemovalMenuForHome(Player player) { // Helper if needed, but existing can be reused with tweaks
+        // Re-using openListRemovalMenu with logic switch
     }
 
     public void openPlayerListForAction(Player player, String type) {
@@ -604,6 +645,10 @@ public class JavaGuiManager implements Listener {
                             .substring(4);
                     player.performCommand("home " + name);
                     player.closeInventory();
+                } else if (event.getRawSlot() == 20) {
+                    startChatInput(player, "CREATE_HOME");
+                } else if (event.getRawSlot() == 24) {
+                    openListRemovalMenu(player, "Home");
                 } else if (event.getRawSlot() == 22) {
                     openMainMenu(player);
                 }
@@ -620,8 +665,20 @@ public class JavaGuiManager implements Listener {
                         }
                     }
                     case 10 -> player.performCommand("team info");
-                    case 11 -> openPlayerListForAction(player, "TeamInvite");
                     case 12 -> {
+                        if (event.isRightClick()) {
+                            if (player.hasPermission("crosstpa.team.base.set")) {
+                                player.performCommand("team setbase");
+                            } else {
+                                player.sendMessage("§cNo permission to set base!");
+                            }
+                        } else {
+                            player.performCommand("team base");
+                        }
+                        player.closeInventory();
+                    }
+                    case 11 -> openPlayerListForAction(player, "TeamInvite");
+                    case 21 -> { // Moved from 12 (Manage Members)
                         player.closeInventory();
                         player.sendMessage("§eUse §f/team kick/promote/demote <player> §eto manage members!");
                     }
@@ -772,6 +829,18 @@ public class JavaGuiManager implements Listener {
                                 player.closeInventory();
                         }
                     }
+                }
+            }
+            case "REMOVE_HOME" -> {
+                if (item.getType() == Material.BARRIER) {
+                    openHomesMenu(player);
+                    return;
+                }
+                if (item.getType() == Material.RED_BED) {
+                    String name = LegacyComponentSerializer.legacySection().serialize(item.getItemMeta().displayName())
+                            .substring(4); // Remove §c§l prefix (added in list menu)
+                    player.performCommand("delhome " + name);
+                    openListRemovalMenu(player, "Home"); // Refresh
                 }
             }
             case "PERSONAL_BANK" -> {

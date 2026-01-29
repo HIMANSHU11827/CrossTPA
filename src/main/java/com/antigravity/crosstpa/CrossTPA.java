@@ -23,6 +23,7 @@ public class CrossTPA extends JavaPlugin {
     private TeamManager teamManager;
     private CoinManager coinManager;
     private MiniMessage miniMessage;
+    private BedrockMenuManager bedrockMenuManager;
 
     @Override
     public void onEnable() {
@@ -40,6 +41,11 @@ public class CrossTPA extends JavaPlugin {
         this.friendManager = new FriendManager(this);
         this.teamManager = new TeamManager(this);
         this.coinManager = new CoinManager(this);
+
+        if (getServer().getPluginManager().isPluginEnabled("Floodgate")) {
+            this.bedrockMenuManager = new BedrockMenuManager(this);
+            getLogger().info("Floodgate found! Bedrock GUIs enabled.");
+        }
 
         requestManager.loadData();
         homeManager.loadData();
@@ -140,6 +146,10 @@ public class CrossTPA extends JavaPlugin {
 
     public JavaGuiManager getJavaGuiManager() {
         return javaGuiManager;
+    }
+
+    public BedrockMenuManager getBedrockMenuManager() {
+        return bedrockMenuManager;
     }
 
     public EconomyManager getEconomyManager() {

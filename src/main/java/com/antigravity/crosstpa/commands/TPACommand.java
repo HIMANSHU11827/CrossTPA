@@ -263,6 +263,11 @@ public class TPACommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (plugin.getBedrockMenuManager() != null) {
+            plugin.getBedrockMenuManager().openMainMenu(player);
+            return;
+        }
+
         try {
             SimpleForm.Builder builder = SimpleForm.builder()
                     .title("§l§3CrossTPA §8- §rControl Panel")
